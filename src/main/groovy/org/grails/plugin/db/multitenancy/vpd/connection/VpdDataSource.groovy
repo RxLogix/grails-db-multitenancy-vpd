@@ -81,21 +81,6 @@
             } finally {
                 stmt?.close()
             }
-
-            if (TransactionSynchronizationManager.isSynchronizationActive()) {
-                TransactionSynchronizationManager.registerSynchronization(
-                        new TransactionSynchronizationAdapter() {
-                            @Override
-                            void afterCompletion(int status) {
-                                log.warn("Clearing Traansacation")
-                                clearOracleContext(conn)
-                                TenantTransactionGuard.clear()
-                            }
-                        }
-                )
-            } else {
-                TenantTransactionGuard.clear()
-            }
         }
 
         boolean isLiquibase() {
