@@ -7,6 +7,7 @@ import spock.lang.Specification
 
 import javax.sql.DataSource
 import java.sql.Connection
+import java.sql.DatabaseMetaData
 import java.sql.Statement
 
 class VpdDataSourceSpec extends Specification {
@@ -14,10 +15,16 @@ class VpdDataSourceSpec extends Specification {
     def "fails when connection tenant and context tenant mismatch"() {
         given:
         def stmt = Mock(Statement)
+
+        def metaData = Mock(DatabaseMetaData) {
+            getDatabaseProductName() >> "Oracle"
+        }
+
         def conn = Mock(Connection) {
             getClientInfo("VPD_TENANT") >> "tenantA"
             getClientInfo() >> [:]
             createStatement() >> stmt
+            getMetaData() >> metaData
         }
 
         def realDs = Stub(DataSource) {

@@ -28,12 +28,16 @@ class VpdAwareConnection implements Connection {
     }
 
     private void clearContext() {
+
+        if (config.devMode) {
+            return
+        }
+
         Statement stmt = null
         try {
             stmt = delegate.createStatement()
-            if (config.devMode) {
-                log.warn("DevMode on so no actual VPD policy applied on connection close")
-            } else {
+
+            if (isOracle(delegate)) {
 
                 stmt.execute("""
                 BEGIN
@@ -43,11 +47,28 @@ class VpdAwareConnection implements Connection {
                     );
                 END;
             """)
+
+            } else if (isPostgres(delegate)) {
+
+                stmt.execute("RESET app.tenant_id")
+
             }
+
+        } catch (Exception e) {
+            log.error("Tenant cleanup failed", e)
         } finally {
             stmt?.close()
         }
     }
-}
 
+    boolean isOracle(Connection c) {
+        c.metaData.databaseProductName.toLowerCase().contains("oracle")
+    }
+
+    boolean isPostgres(Connection c) {
+        c.metaData.databaseProductName.toLowerCase().contains("postgres")
+    }
+
+
+}
 
