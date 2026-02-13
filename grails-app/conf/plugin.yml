@@ -1,0 +1,17 @@
+vpd:
+  enabled: true
+  contextName: VPD_CTX
+  attributeName: TENANT_ID
+  headerName: X-Tenant-ID
+  jwtClaim: tenant
+  sessionAttribute: TENANT_ID
+  failIfMissingTenant: true
+  devMode: false
+  excludeUris:
+    - /login
+    - /logout
+    - /auth/**
+    - /users/register
+    - /users/reset-password
+    - /health
+    - /console/**
