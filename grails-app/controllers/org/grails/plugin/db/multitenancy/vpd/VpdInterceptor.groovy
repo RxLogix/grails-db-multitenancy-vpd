@@ -1,6 +1,5 @@
 package org.grails.plugin.db.multitenancy.vpd
 
-import org.grails.plugin.db.multitenancy.vpd.TenantContext
 import org.grails.plugin.db.multitenancy.vpd.config.VpdConfig
 import org.grails.plugin.db.multitenancy.vpd.resolvers.TenantResolverChain
 
@@ -9,10 +8,12 @@ class VpdInterceptor {
 
     int order = 1
 
-    VpdConfig config
-    TenantResolverChain resolverChain
+    private VpdConfig config
+    private TenantResolverChain resolverChain
 
-    VpdInterceptor() {
+    VpdInterceptor(VpdConfig vpdConfig, TenantResolverChain tenantResolverChain) {
+        this.config = vpdConfig
+        this.resolverChain = tenantResolverChain
         matchAll()
     }
 
