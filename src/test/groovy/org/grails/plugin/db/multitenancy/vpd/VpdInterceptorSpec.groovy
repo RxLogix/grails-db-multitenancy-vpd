@@ -10,13 +10,13 @@ class VpdInterceptorSpec extends Specification
         implements InterceptorUnitTest<VpdInterceptor> {
 
     def setup() {
-        interceptor.config = new VpdConfig(
+        interceptor.vpdConfig = new VpdConfig(
                 enabled: true,
                 failIfMissingTenant: true,
-                excludeUris: ["/login", "/health"]
+                excludeUris: ["/login", "/health", "/console/**"]
         )
 
-        interceptor.resolverChain = Stub(TenantResolverChain) {
+        interceptor.tenantResolverChain = Stub(TenantResolverChain) {
             resolve(_) >> "tenantA"
         }
     }
@@ -24,6 +24,16 @@ class VpdInterceptorSpec extends Specification
     def "excluded URI bypasses tenant logic"() {
         when:
         withRequest(uri: "/login")
+        def result = interceptor.before()
+
+        then:
+        result == true
+        TenantContext.get() == null
+    }
+
+    def "excluded URI with additional uri pattern bypasses tenant logic"() {
+        when:
+        withRequest(uri: "/console/execute")
         def result = interceptor.before()
 
         then:
@@ -46,7 +56,7 @@ class VpdInterceptorSpec extends Specification
 
     def "missing tenant fails request"() {
         given:
-        interceptor.resolverChain = Stub(TenantResolverChain) {
+        interceptor.tenantResolverChain = Stub(TenantResolverChain) {
             resolve(_) >> null
         }
 

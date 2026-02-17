@@ -8,18 +8,16 @@ class VpdInterceptor {
 
     int order = 1
 
-    private VpdConfig config
-    private TenantResolverChain resolverChain
+    def vpdConfig
+    def tenantResolverChain
 
-    VpdInterceptor(VpdConfig vpdConfig, TenantResolverChain tenantResolverChain) {
-        this.config = vpdConfig
-        this.resolverChain = tenantResolverChain
+    VpdInterceptor() {
         matchAll()
     }
 
     boolean before() {
 
-        if (!config.enabled) return true
+        if (!vpdConfig.enabled) return true
 
         def uri = webRequest.currentRequest.requestURI
 
@@ -27,9 +25,9 @@ class VpdInterceptor {
             return true
         }
 
-        def tenant = resolverChain.resolve(webRequest.currentRequest)
+        def tenant = tenantResolverChain.resolve(webRequest.currentRequest)
 
-        if (!tenant && config.failIfMissingTenant) {
+        if (!tenant && vpdConfig.failIfMissingTenant) {
             render status: 401, text: "Tenant not resolved"
             return false
         }
@@ -44,15 +42,18 @@ class VpdInterceptor {
     }
 
     boolean isExcluded(String uri) {
-        config.excludeUris?.any { pattern ->
+        vpdConfig.excludeUris?.any { pattern ->
             uri ==~ patternToRegex(pattern)
         }
     }
 
     private String patternToRegex(String pattern) {
-        pattern
-                .replace("**", ".*")
-                .replace("*", "[^/]*")
+        def p = pattern
+                .replace("**", "__DOUBLE_STAR__")   // protect
+                .replace("*", "[^/]*")              // single segment
+                .replace("__DOUBLE_STAR__", ".*")   // multi segment
+
+        return "^${p}\$"
     }
 }
 
