@@ -56,6 +56,7 @@ class GrailsDbMultitenancyVpdGrailsPlugin extends Plugin {
                 systemTenantId = grailsApplication.config.getProperty("vpd.systemTenantId", String, '999')
                 devMode = grailsApplication.config.getProperty("vpd.devMode", Boolean, false)
                 supportedDBs = grailsApplication.config.getProperty("vpd.supportedDBs", List<String>, ['dataSource', 'dataSource_pva'])
+                excludeUris = grailsApplication.config.getProperty("vpd.excludeUris", List<String>, ['/login/**'])
             }
 
             apiTenantResolver(ApiTenantResolver) {

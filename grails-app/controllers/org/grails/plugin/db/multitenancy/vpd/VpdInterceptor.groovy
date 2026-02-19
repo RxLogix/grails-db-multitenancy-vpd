@@ -53,6 +53,9 @@ class VpdInterceptor {
                 .replace("*", "[^/]*")              // single segment
                 .replace("__DOUBLE_STAR__", ".*")   // multi segment
 
+        if (pattern.endsWith("/**")) {
+            p = p.replace("/.*", "(/.*)?")
+        }
         return "^${p}\$"
     }
 }
